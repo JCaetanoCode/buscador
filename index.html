@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa Bíblica Avançada - ACF, AA, NVI</title>
+    <style>
+        /* caracteristicas botão ir biblia */
+
+        .titulo-biblia {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            margin: 0;
+            cursor: pointer;
+
+            transform: scale(1.0);
+            transform-origin: left center;
+            /* mantém alinhado à esquerda */
+        }
+
+        .titulo-biblia:active {
+            opacity: 0.8;
+        }
+
+        /* caracteristicas botão ir biblia */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.25em;
+            margin-bottom: 5px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            gap: 10px;
+        }
+
+        .status-item {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            min-width: 120px;
+        }
+
+        .status-loaded {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-pending {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .btn-reload {
+            background: #17a2b8;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .btn-reload:hover {
+            background: #138496;
+        }
+
+        .search-area {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 3px solid #e0e0e0;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        #searchInput {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-clear {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+
+        select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+        }
+
+        .results-area {
+            padding: 30px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .book-stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .book-item {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .verse-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .verse-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateX(5px);
+            border-left: 4px solid #667eea;
+        }
+
+        .verse-reference {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .highlight {
+            background-color: #ffeb3b;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .example-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        .example-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .file-status {
+            margin: 5px 0;
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>📖 Pesquisa Bíblica Avançada</h1>
+            <p>Pesquise nas versões ACF, AA e NVI - Antigo e Novo Testamento</p>
+        </div>
+
+        <div class="header">
+    <h1 class="titulo-biblia" onclick="window.location.href='https://jcaetanocode.github.io/Biblia-Byte/'" title="Ir para a Bíblia Sagrada">
+        📚 Ir para a Bíblia
+    </h1>
+</div>
+
+        <!-- BARRA DE STATUS DOS ARQUIVOS -->
+        <div class="status-bar" id="statusBar">
+            <div class="status-item status-loading" id="statusACF">
+                <strong>ACF</strong>
+                <div class="file-status">Verificando acf.json...</div>
+            </div>
+            <div class="status-item status-loading" id="statusAA">
+                <strong>AA</strong>
+                <div class="file-status">Verificando aa.json...</div>
+            </div>
+            <div class="status-item status-loading" id="statusNVI">
+                <strong>NVI</strong>
+                <div class="file-status">Verificando nvi.json...</div>
+            </div>
+        </div>
+
+        <div class="search-area">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Digite a palavra ou frase para pesquisar..." autofocus>
+                <button class="btn btn-search" id="searchButton">🔍 Pesquisar</button>
+                <button class="btn btn-clear" id="clearButton">✖ Limpar</button>
+            </div>
+
+            <div>
+                <p style="margin-bottom: 5px; color: #666; font-size: 0.9em;">💡 Sugestões:</p>
+                <div class="example-buttons" id="exampleButtons"></div>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Versão da Bíblia</label>
+                    <select id="versionSelect">
+                        <option value="all">Todas as Versões</option>
+                        <option value="acf">Almeida Corrigida Fiel (ACF)</option>
+                        <option value="aa">Almeida Atualizada (AA)</option>
+                        <option value="nvi">Nova Versão Internacional (NVI)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Testamento</label>
+                    <select id="testamentSelect">
+                        <option value="all">Todos</option>
+                        <option value="old">Antigo Testamento</option>
+                        <option value="new">Novo Testamento</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Livro Específico</label>
+                    <select id="bookSelect">
+                        <option value="all">Todos os Livros</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Tipo de Pesquisa</label>
+                    <select id="searchType">
+                        <option value="contains">Contém</option>
+                        <option value="exact">Palavra Exata</option>
+                        <option value="startsWith">Começa com</option>
+                        <option value="endsWith">Termina com</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-area" id="resultsArea">
+            <div style="text-align: center; padding: 50px;">
+                <p style="font-size: 1.2em; color: #667eea;">⏳ Carregando dados bíblicos...</p>
+                <p style="color: #999; margin-top: 10px;">Procurando por: <strong>acf.json</strong>,
+                    <strong>aa.json</strong>, <strong>nvi.json</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            // ==================== CONFIGURAÇÃO ====================
+            const JSON_FILES = {
+                acf: 'acf.json',
+                aa: 'aa.json',
+                nvi: 'nvi.json'
+            };
+
+            // ==================== ESTRUTURA DA BÍBLIA ====================
+            const BIBLE_STRUCTURE = {
+                old: [
+                    "Gênesis", "Êxodo", "Levítico", "Números", "Deuteronômio",
+                    "Josué", "Juízes", "Rute", "1 Samuel", "2 Samuel",
+                    "1 Reis", "2 Reis", "1 Crônicas", "2 Crônicas", "Esdras",
+                    "Neemias", "Ester", "Jó", "Salmos", "Provérbios",
+                    "Eclesiastes", "Cantares", "Isaías", "Jeremias", "Lamentações",
+                    "Ezequiel", "Daniel", "Oséias", "Joel", "Amós",
+                    "Obadias", "Jonas", "Miquéias", "Naum", "Habacuque",
+                    "Sofonias", "Ageu", "Zacarias", "Malaquias"
+                ],
+                new: [
+                    "Mateus", "Marcos", "Lucas", "João", "Atos",
+                    "Romanos", "1 Coríntios", "2 Coríntios", "Gálatas", "Efésios",
+                    "Filipenses", "Colossenses", "1 Tessalonicenses", "2 Tessalonicenses",
+                    "1 Timóteo", "2 Timóteo", "Tito", "Filemom", "Hebreus",
+                    "Tiago", "1 Pedro", "2 Pedro", "1 João", "2 João",
+                    "3 João", "Judas", "Apocalipse"
+                ]
+            };
+
+            // Dados bíblicos
+            const bibleData = {
+                acf: {},
+                aa: {},
+                nvi: {}
+            };
+
+            // Status de carregamento
+            const loadStatus = {
+                acf: { loaded: false, count: 0, error: null },
+                aa: { loaded: false, count: 0, error: null },
+                nvi: { loaded: false, count: 0, error: null }
+            };
+
+            // ==================== FUNÇÕES DE CARREGAMENTO ====================
+
+            function updateStatusUI() {
+                for (let version of ['acf', 'aa', 'nvi']) {
+                    const statusEl = document.getElementById(`status${version.toUpperCase()}`);
+                    const status = loadStatus[version];
+
+                    if (status.loaded) {
+                        statusEl.className = 'status-item status-loaded';
+                        statusEl.querySelector('.file-status').innerHTML =
+                            `✅ ${status.count.toLocaleString()} versículos`;
+                    } else if (status.error) {
+                        statusEl.className = 'status-item status-error';
+                        statusEl.querySelector('.file-status').innerHTML =
+                            `❌ ${status.error} <br><button class="btn-reload" onclick="window.location.reload()">Tentar novamente</button>`;
+                    } else {
+                        statusEl.className = 'status-item status-loading';
+                        statusEl.querySelector('.file-status').textContent = '⏳ Carregando...';
+                    }
+                }
+            }
+
+            async function loadJSONFile(version) {
+                const filename = JSON_FILES[version];
+                const statusEl = document.getElementById(`status${version.toUpperCase()}`);
+
+                console.log(`📂 Tentando carregar: ${filename}`);
+                statusEl.querySelector('.file-status').textContent = `⏳ Buscando ${filename}...`;
+
+                try {
+                    // VERIFICAÇÃO EXPLÍCITA DO ARQUIVO
+                    console.log(`➡️ Fetch: ${filename}`);
+                    const response = await fetch(filename);
+
+                    console.log(`📡 Resposta para ${filename}:`, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        ok: response.ok,
+                        url: response.url
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    console.log(`📦 ${filename} recebido:`, {
+                        type: typeof data,
+                        isArray: Array.isArray(data),
+                        length: Array.isArray(data) ? data.length : 'N/A'
+                    });
+
+                    // Processar dados
+                    const processed = processJSONData(data, version);
+                    const verseCount = Object.values(processed).flat().length;
+
+                    if (verseCount > 0) {
+                        bibleData[version] = processed;
+                        loadStatus[version].loaded = true;
+                        loadStatus[version].count = verseCount;
+                        loadStatus[version].error = null;
+
+                        console.log(`✅ ${version}: ${verseCount} versículos processados`);
+                    } else {
+                        throw new Error('Nenhum versículo encontrado no arquivo');
+                    }
+
+                } catch (error) {
+                    console.error(`❌ Erro ao carregar ${filename}:`, error);
+                    loadStatus[version].loaded = false;
+                    loadStatus[version].error = error.message;
+
+                    // Tentar caminhos alternativos
+                    await tryAlternativePaths(version);
+                }
+
+                updateStatusUI();
+            }
+
+            async function tryAlternativePaths(version) {
+                const alternativePaths = [
+                    `./${JSON_FILES[version]}`,
+                    `../${JSON_FILES[version]}`,
+                    `/biblia/${JSON_FILES[version]}`,
+                    `json/${JSON_FILES[version]}`,
+                    `data/${JSON_FILES[version]}`
+                ];
+
+                console.log(`🔍 Tentando caminhos alternativos para ${version}...`);
+
+                for (let path of alternativePaths) {
+                    try {
+                        console.log(`  Tentando: ${path}`);
+                        const response = await fetch(path);
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            const processed = processJSONData(data, version);
+                            const verseCount = Object.values(processed).flat().length;
+
+                            if (verseCount > 0) {
+                                bibleData[version] = processed;
+                                loadStatus[version].loaded = true;
+                                loadStatus[version].count = verseCount;
+                                loadStatus[version].error = null;
+
+                                console.log(`✅ ${version} carregado de: ${path}`);
+                                updateStatusUI();
+                                return;
+                            }
+                        }
+                    } catch (e) {
+                        console.log(`  ❌ ${path}: ${e.message}`);
+                    }
+                }
+
+                console.warn(`⚠️ Não foi possível carregar ${version} de nenhum caminho`);
+            }
+
+            function processJSONData(data, version) {
+                const processed = {};
+
+                if (!Array.isArray(data)) {
+                    console.error(`${version}: Dados não são array. Tipo:`, typeof data);
+                    console.log('Estrutura recebida:', Object.keys(data).slice(0, 10));
+
+                    // Tentar extrair array de objeto
+                    if (data.books) {
+                        data = data.books;
+                    } else if (data.data) {
+                        data = data.data;
+                    } else {
+                        // Tentar primeiro valor que for array
+                        for (let key in data) {
+                            if (Array.isArray(data[key])) {
+                                data = data[key];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!Array.isArray(data)) {
+                        return processed;
+                    }
+                }
+
+                console.log(`🔄 Processando ${data.length} livros para ${version}...`);
+
+                data.forEach((bookData, idx) => {
+                    const bookName = bookData.book || bookData.name || bookData.title;
+
+                    if (!bookName) {
+                        console.warn(`Livro ${idx}: sem nome`);
+                        return;
+                    }
+
+                    processed[bookName] = [];
+
+                    const chapters = bookData.chapters || bookData.chapter || bookData.verses;
+
+                    if (chapters && Array.isArray(chapters)) {
+                        chapters.forEach((chapter, chIdx) => {
+                            if (Array.isArray(chapter)) {
+                                chapter.forEach((text, vIdx) => {
+                                    if (text && typeof text === 'string' && text.trim()) {
+                                        processed[bookName].push({
+                                            chapter: chIdx + 1,
+                                            verse: vIdx + 1,
+                                            text: text.trim(),
+                                            book: bookName,
+                                            version: version,
+                                            reference: `${bookName} ${chIdx + 1}:${vIdx + 1}`
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+
+                const totalVerses = Object.values(processed).flat().length;
+                console.log(`📊 ${version}: ${Object.keys(processed).length} livros, ${totalVerses} versículos`);
+
+                return processed;
+            }
+
+            // ==================== PESQUISA ====================
+
+            function performSearch() {
+                const searchTerm = document.getElementById('searchInput').value.trim();
+                const version = document.getElementById('versionSelect').value;
+                const testament = document.getElementById('testamentSelect').value;
+                const book = document.getElementById('bookSelect').value;
+                const searchType = document.getElementById('searchType').value;
+
+                if (!searchTerm) {
+                    alert('Digite um termo para pesquisar.');
+                    return;
+                }
+
+                const anyLoaded = Object.values(loadStatus).some(s => s.loaded);
+                if (!anyLoaded) {
+                    alert('Nenhum arquivo de Bíblia foi carregado. Verifique a barra de status acima.');
+                    return;
+                }
+
+                console.log(`🔍 Pesquisando: "${searchTerm}"`);
+                const results = searchBible(searchTerm, version, testament, book, searchType);
+                console.log(`📊 Encontrados: ${results.totalCount} resultados`);
+                displayResults(results, searchTerm);
+            }
+
+            function searchBible(searchTerm, version, testament, book, searchType) {
+                const results = {};
+                let totalCount = 0;
+                const bookCounts = {};
+
+                const versions = version === 'all' ? ['acf', 'aa', 'nvi'] : [version];
+
+                let booksToSearch = [];
+                if (testament === 'old') {
+                    booksToSearch = BIBLE_STRUCTURE.old;
+                } else if (testament === 'new') {
+                    booksToSearch = BIBLE_STRUCTURE.new;
+                } else {
+                    booksToSearch = [...BIBLE_STRUCTURE.old, ...BIBLE_STRUCTURE.new];
+                }
+
+                if (book !== 'all') {
+                    booksToSearch = booksToSearch.filter(b => b === book);
+                }
+
+                const term = searchTerm.toLowerCase();
+
+                for (let ver of versions) {
+                    results[ver] = [];
+
+                    if (!loadStatus[ver].loaded || !bibleData[ver]) continue;
+
+                    for (let bookName of booksToSearch) {
+                        const verses = bibleData[ver][bookName];
+                        if (!verses) continue;
+
+                        let matchCount = 0;
+
+                        for (let verse of verses) {
+                            const text = verse.text.toLowerCase();
+                            let match = false;
+
+                            switch (searchType) {
+                                case 'contains':
+                                    match = text.includes(term);
+                                    break;
+
+                                case 'exact':
+                                    match = new RegExp(`\\b${term}\\b`, 'i').test(text);
+                                    break;
+
+                                case 'startsWith':
+                                    match = new RegExp(`\\b${term}`, 'i').test(text);
+                                    break;
+
+                                case 'endsWith':
+                                    match = new RegExp(`${term}\\b`, 'i').test(text);
+                                    break;
+                            }
+
+                            if (match) {
+                                const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                                results[ver].push({
+                                    ...verse,
+                                    highlightedText: verse.text.replace(
+                                        new RegExp(`(${escaped})`, 'gi'),
+                                        '<span class="highlight">$1</span>'
+                                    )
+                                });
+                                totalCount++;
+                                matchCount++;
+                            }
+                        }
+
+                        if (matchCount > 0) {
+                            bookCounts[bookName] = (bookCounts[bookName] || 0) + matchCount;
+                        }
+                    }
+                }
+
+                return { results, totalCount, bookCounts };
+            }
+
+            function displayResults(searchResults, searchTerm) {
+                const resultsArea = document.getElementById('resultsArea');
+
+                const totalVerses = Object.values(loadStatus).reduce((sum, s) => sum + s.count, 0);
+
+                let html = `
+                    <div style="background: #f0f4f8; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-around; flex-wrap: wrap;">
+                        <div style="text-align: center;"><strong>66</strong><br>Livros</div>
+                        <div style="text-align: center;"><strong>39</strong><br>AT</div>
+                        <div style="text-align: center;"><strong>27</strong><br>NT</div>
+                        <div style="text-align: center;"><strong>${totalVerses.toLocaleString()}</strong><br>Versículos</div>
+                    </div>
+                `;
+
+                if (searchResults.totalCount === 0) {
+                    html += `
+                        <div style="text-align: center; padding: 50px; color: #999;">
+                            <h3>😔 Nenhum resultado para "${searchTerm}"</h3>
+                            <p style="margin-top: 15px;">Tente: Jesus, amor, fé, Deus, Espírito, graça</p>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="stats">
+                            <div class="stat-card">
+                                <h3>${searchResults.totalCount}</h3>
+                                <p>Ocorrências</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3>${Object.keys(searchResults.bookCounts).length}</h3>
+                                <p>Livros</p>
+                            </div>
+                        </div>
+                    `;
+
+                    // Por livro
+                    const sorted = Object.entries(searchResults.bookCounts).sort((a, b) => b[1] - a[1]);
+                    if (sorted.length > 0) {
+                        html += '<div class="book-stats"><h3>📚 Por Livro</h3><div class="book-grid">';
+                        for (let [bookName, count] of sorted) {
+                            html += `<div class="book-item"><strong>${bookName}</strong><br>${count} ocorrência(s)</div>`;
+                        }
+                        html += '</div></div>';
+                    }
+
+                    // Versículos
+                    const versionNames = { acf: 'ACF', aa: 'AA', nvi: 'NVI' };
+
+                    for (let [ver, verses] of Object.entries(searchResults.results)) {
+                        if (verses.length === 0) continue;
+                        const display = verses.slice(0, 30);
+
+                        html += `<h3 style="margin: 20px 0; border-bottom: 2px solid #667eea; padding-bottom: 10px;">📖 ${versionNames[ver]} (${verses.length})</h3>`;
+
+                        for (let verse of display) {
+                            html += `
+                                <div class="verse-card">
+                                    <div class="verse-reference">${verse.reference}</div>
+                                    <div>${verse.highlightedText}</div>
+                                </div>
+                            `;
+                        }
+
+                        if (verses.length > 30) {
+                            html += `<p style="text-align: center; color: #999;">Mostrando 30 de ${verses.length}</p>`;
+                        }
+                    }
+                }
+
+                resultsArea.innerHTML = html;
+            }
+
+            function clearSearch() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('versionSelect').value = 'all';
+                document.getElementById('testamentSelect').value = 'all';
+                document.getElementById('bookSelect').value = 'all';
+                document.getElementById('searchType').value = 'contains';
+
+                const totalVerses = Object.values(loadStatus).reduce((sum, s) => sum + s.count, 0);
+
+                document.getElementById('resultsArea').innerHTML = `
+                    <div style="background: #f0f4f8; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-around; flex-wrap: wrap;">
+                        <div style="text-align: center;"><strong>66</strong><br>Livros</div>
+                        <div style="text-align: center;"><strong>39</strong><br>AT</div>
+                        <div style="text-align: center;"><strong>27</strong><br>NT</div>
+                        <div style="text-align: center;"><strong>${totalVerses.toLocaleString()}</strong><br>Versículos</div>
+                    </div>
+                    <div style="text-align: center; padding: 50px; color: #999;">
+                        Digite uma palavra para pesquisar
+                    </div>
+                `;
+
+                document.getElementById('searchInput').focus();
+            }
+
+            function populateInterface() {
+                const bookSelect = document.getElementById('bookSelect');
+                bookSelect.innerHTML = '<option value="all">Todos os Livros</option>';
+
+                const oldGroup = document.createElement('optgroup');
+                oldGroup.label = '📜 Antigo Testamento';
+                BIBLE_STRUCTURE.old.forEach(book => {
+                    const opt = document.createElement('option');
+                    opt.value = book;
+                    opt.textContent = book;
+                    oldGroup.appendChild(opt);
+                });
+
+                const newGroup = document.createElement('optgroup');
+                newGroup.label = '✝️ Novo Testamento';
+                BIBLE_STRUCTURE.new.forEach(book => {
+                    const opt = document.createElement('option');
+                    opt.value = book;
+                    opt.textContent = book;
+                    newGroup.appendChild(opt);
+                });
+
+                bookSelect.appendChild(oldGroup);
+                bookSelect.appendChild(newGroup);
+
+                // Botões de exemplo
+                const examplesDiv = document.getElementById('exampleButtons');
+                const examples = ['Jesus', 'amor', 'fé', 'Deus', 'monte', 'graça', 'paz', 'Espírito'];
+                examplesDiv.innerHTML = examples.map(word =>
+                    `<button class="example-btn" onclick="document.getElementById('searchInput').value='${word}';document.getElementById('searchButton').click();">${word}</button>`
+                ).join('');
+            }
+
+            // ==================== INICIALIZAÇÃO ====================
+
+            async function init() {
+                console.log('🚀 Iniciando aplicação de Pesquisa Bíblica');
+                console.log('📂 Arquivos esperados:');
+                console.log('   - acf.json');
+                console.log('   - aa.json');
+                console.log('   - nvi.json');
+                console.log('📁 Local atual:', window.location.href);
+
+                populateInterface();
+
+                // CARREGAMENTO EXPLÍCITO DOS ARQUIVOS
+                console.log('⏳ Iniciando carregamento dos arquivos JSON...');
+
+                await Promise.all([
+                    loadJSONFile('acf'),
+                    loadJSONFile('aa'),
+                    loadJSONFile('nvi')
+                ]);
+
+                // Verificar resultado
+                const loadedCount = Object.values(loadStatus).filter(s => s.loaded).length;
+                const totalVerses = Object.values(loadStatus).reduce((sum, s) => sum + s.count, 0);
+
+                console.log('📊 Resumo do carregamento:');
+                console.log(`   Versões carregadas: ${loadedCount}/3`);
+                console.log(`   Total de versículos: ${totalVerses.toLocaleString()}`);
+
+                if (loadedCount > 0) {
+                    console.log('✅ Pronto para pesquisar!');
+                } else {
+                    console.warn('⚠️ Nenhum arquivo JSON foi carregado!');
+                    console.warn('Verifique se os arquivos existem na pasta:', window.location.href);
+                }
+
+                updateStatusUI();
+                clearSearch();
+            }
+
+            // Event listeners
+            document.getElementById('searchButton').addEventListener('click', performSearch);
+            document.getElementById('clearButton').addEventListener('click', clearSearch);
+            document.getElementById('searchInput').addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') performSearch();
+            });
+
+            // Iniciar
+            init();
+        })();
+    </script>
+</body>
+
+</html>
